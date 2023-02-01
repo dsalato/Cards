@@ -29,6 +29,7 @@ Vue.component('Cards', {
     mounted() {
         eventBus.$on('card-submitted', card => {
             if(this.columnFirst.length < 3){this.columnFirst.push(card)}
+            console.log(this.columnFirst)
 
         })
     },
@@ -45,13 +46,13 @@ Vue.component('Columns1', {
                             <strong>{{task.id}}</strong>
                             <input type="checkbox" 
                             v-on:change="task.completed = true" 
-                            :disabled="task.completed" >
+                            :disabled="task.completed" 
+                            v-on:change='column.status += 1'>
                             <span :class="{done: task.completed}" >{{task.title}}</span>
                     </li>
                 </span>
             </div>
        </div>`,
-
     props: {
         columnFirst:{
             type: Array,
@@ -126,6 +127,7 @@ Vue.component('create_card', {
                 status: 0
 
             }
+
             eventBus.$emit('card-submitted', card),
             this.name = null,
             this.arrTask = null,
