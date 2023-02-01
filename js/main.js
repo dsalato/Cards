@@ -1,4 +1,5 @@
 let eventBus = new Vue()
+let eventBusTwo = new Vue()
 Vue.component('Cards', {
     template: `
        <div class="Cards">
@@ -29,13 +30,16 @@ Vue.component('Cards', {
     mounted() {
         eventBus.$on('card-submitted', card => {
             if(this.columnFirst.length < 3){this.columnFirst.push(card)}
-            console.log(this.columnFirst)
+
 
         })
-    },
-    methods: {
+        eventBusTwo.$on('addColumnSecond', card => {
+            if(this.columnSecond.length < 5){this.columnSecond.push(card)}
+
+        })
 
     },
+
 })
 Vue.component('Columns1', {
     template: `
@@ -47,7 +51,8 @@ Vue.component('Columns1', {
                             <input type="checkbox" 
                             v-on:change="task.completed = true" 
                             :disabled="task.completed" 
-                            v-on:change='column.status += 1'>
+                            v-on:change='column.status += 1'
+                            @change.prevent="updateColumn(column)">
                             <span :class="{done: task.completed}" >{{task.title}}</span>
                     </li>
                 </span>
@@ -58,12 +63,22 @@ Vue.component('Columns1', {
             type: Array,
             required: false
 
-        },
-        arrTask: {
-            type: Array,
-            required: false
         }
 
+    },
+    methods: {
+        updateColumn(card) {
+            let cardTask = 0
+            for(let i = 0; i < 5; i++){
+                if (card.arrTask[i].title != null) {
+                    cardTask++
+                }
+            }
+            if ((card.status / cardTask) * 100 >= 50) {
+                eventBusTwo.$emit('addColumnSecond', card)
+            }
+
+        },
     },
 
 })
@@ -97,10 +112,8 @@ Vue.component('create_card', {
 
             <input class="fort_submit" type="submit" value="Добавить"> 
         </div>
-           
-               
-         
        </form>`,
+
     data() {
         return {
             name: null,
@@ -109,7 +122,6 @@ Vue.component('create_card', {
             name3:null,
             name4:null,
             name5:null,
-
 
         }
     },
@@ -148,8 +160,6 @@ Vue.component('create_card', {
     },
 
 })
-
-
 
 let app = new Vue({
     el: '#app',
