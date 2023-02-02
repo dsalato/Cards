@@ -31,6 +31,19 @@ li{
     border: 2px solid cadetblue;
     width: 50%;
     margin: 2rem auto;
+    opacity:0;
+    transition: 1s;
+    animation: show 1.5s 1;
+    animation-fill-mode: forwards;
+
+}
+@keyframes show{
+    0%{
+        opacity:0;
+    }
+    100% {
+        opacity:1;
+    }
 }
 .done{
     text-decoration: line-through;
@@ -58,3 +71,5 @@ label{
     border-radius: 1em;
     padding: 5px 10px;
 }
+
+/* animation */

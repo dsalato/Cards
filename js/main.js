@@ -26,6 +26,7 @@ Vue.component('Cards', {
             columnSecond:[],
             columnThird:[],
 
+
         }
     },
     mounted() {
@@ -61,26 +62,27 @@ Vue.component('Cards', {
 Vue.component('Columns1', {
     template: `
        <div class="Column">
-            <div class="column_div" v-for="column in columnFirst"><h2>{{column.name}}</h2>
-                <span>
-                    <li v-for="task in column.arrTask" v-if="task.title != null" >
-                            <strong>{{task.id}}</strong>
-                            <input type="checkbox" 
-                            v-on:change="task.completed = true" 
-                            :disabled="task.completed" 
-                            v-on:change='column.status += 1'
-                            @change.prevent="updateColumn(column)">
-                            <span :class="{done: task.completed}" >{{task.title}}</span>
-                    </li>
-                </span>
-            </div>
+                <div class="column_div" v-for="column in columnFirst"><h2>{{column.name}}</h2>
+                    <span>
+                        <li v-for="task in column.arrTask" v-if="task.title != null" >
+                                <strong>{{task.id}}</strong>
+                                <input type="checkbox" 
+                                v-on:change="task.completed = true" 
+                                :disabled="task.completed" 
+                                v-on:change='column.status += 1'
+                                @change.prevent="updateColumn(column)">
+                                <span :class="{done: task.completed}" >{{task.title}}</span>
+                        </li>
+                    </span>
+                </div>
        </div>`,
     props: {
         columnFirst:{
             type: Array,
             required: false
 
-        }
+        },
+
 
     },
     methods: {
@@ -106,7 +108,8 @@ Vue.component('Columns1', {
 Vue.component('Columns2', {
     template: `
        <div class="Column">
-            <div class="column_div" v-for="column in columnSecond"><h2>{{column.name}}</h2>
+            <div class="column_div" v-for="column in columnSecond">
+                <h2>{{column.name}}</h2>
                 <span>
                     <li v-for="task in column.arrTask" v-if="task.title != null" >
                             <strong>{{task.id}}</strong>
