@@ -1,5 +1,4 @@
 let eventBus = new Vue()
-let eventBusTwo = new Vue()
 Vue.component('Cards', {
     template: `
        <div class="Cards">
@@ -12,9 +11,11 @@ Vue.component('Cards', {
                 </div>
                 <div class="cards_item">
                     <h2>В процессе</h2>
+                    <columns2 :columnSecond="columnSecond"></columns2>
                 </div>
                 <div class="cards_item">
                     <h2>Завершенные</h2>
+                    <columns3 :columnThird="columnThird"></columns3>
                 </div>
 
            </div>
@@ -29,21 +30,37 @@ Vue.component('Cards', {
     },
     mounted() {
         eventBus.$on('card-submitted', card => {
-            if(this.columnFirst.length < 3){this.columnFirst.push(card)}
+            if(this.columnFirst.length < 3){
+                this.columnFirst.push(card)
+            }
 
 
         })
-        eventBusTwo.$on('addColumnSecond', card => {
-            if(this.columnSecond.length < 5){this.columnSecond.push(card)}
+        eventBus.$on('addColumnSecond', card => {
+            if(this.columnSecond.length < 5){
+                this.columnSecond.push(card)
+                this.columnFirst.splice(this.columnFirst.indexOf(card), 1)
+            }
+
+        })
+        eventBus.$on('addColumnThird', card => {
+            this.columnThird.push(card)
+            this.columnSecond.splice(this.columnSecond.indexOf(card), 1)
+
+        })
+        eventBus.$on('addColumnOneThird', card => {
+            this.columnThird.push(card)
+            this.columnFirst.splice(this.columnFirst.indexOf(card), 1)
 
         })
 
     },
 
+
 })
 Vue.component('Columns1', {
     template: `
-       <div class="Column1">
+       <div class="Column">
             <div class="column_div" v-for="column in columnFirst"><h2>{{column.name}}</h2>
                 <span>
                     <li v-for="task in column.arrTask" v-if="task.title != null" >
@@ -74,12 +91,87 @@ Vue.component('Columns1', {
                     cardTask++
                 }
             }
-            if ((card.status / cardTask) * 100 >= 50) {
-                eventBusTwo.$emit('addColumnSecond', card)
+            if (((card.status / cardTask) * 100 >= 50) && (card.status / cardTask) * 100 != 100) {
+                eventBus.$emit('addColumnSecond', card)
+            }
+            if ((card.status / cardTask) * 100 === 100) {
+                card.data = new Date().toLocaleString()
+                eventBus.$emit('addColumnOneThird', card)
             }
 
         },
     },
+
+})
+Vue.component('Columns2', {
+    template: `
+       <div class="Column">
+            <div class="column_div" v-for="column in columnSecond"><h2>{{column.name}}</h2>
+                <span>
+                    <li v-for="task in column.arrTask" v-if="task.title != null" >
+                            <strong>{{task.id}}</strong>
+                            <input type="checkbox" 
+                            v-on:change="task.completed = true" 
+                            :disabled="task.completed" 
+                            v-on:change='column.status += 1'
+                            @change.prevent="updateColumnTwo(column)"
+                            >
+                            <span :class="{done: task.completed}" >{{task.title}}</span>
+                    </li>
+                </span>
+            </div>
+       </div>`,
+    props: {
+        columnSecond:{
+            type: Array,
+            required: false
+
+        }
+
+    },
+    methods: {
+        updateColumnTwo(card) {
+            let cardTask = 0
+            for(let i = 0; i < 5; i++){
+                if (card.arrTask[i].title != null) {
+                    cardTask++
+                }
+            }
+            if ((card.status / cardTask) * 100 === 100) {
+                card.data = new Date().toLocaleString()
+                eventBus.$emit('addColumnThird', card)
+            }
+
+        },
+    }
+
+})
+Vue.component('Columns3', {
+    template: `
+       <div class="Column">
+            <div class="column_div" v-for="column in columnThird"><h2>{{column.name}}</h2>
+                <span>
+                    <li v-for="task in column.arrTask" v-if="task.title != null" >
+                            <strong>{{task.id}}</strong>
+                            <input type="checkbox" 
+                            :disabled="task.completed" 
+                            >
+                            <span :class="{done: task.completed}" >{{task.title}}</span>
+                    </li>
+                    <p>Дата окончания: <br>{{column.data}}</p>
+                    
+                </span>
+            </div>
+       </div>`,
+    props: {
+        columnThird:{
+            type: Array,
+            required: false
+
+        }
+
+    },
+    methods: {}
 
 })
 Vue.component('create_card', {
@@ -109,8 +201,7 @@ Vue.component('create_card', {
                 <label for="name">Добавить задачу:</label>
                 <input class="form_input" id="task5" v-model="name5" placeholder="task">
             </div>
-
-            <input class="fort_submit" type="submit" value="Добавить"> 
+            <input  class="fort_submit" type="submit" value="Добавить"> 
         </div>
        </form>`,
 
@@ -122,14 +213,13 @@ Vue.component('create_card', {
             name3:null,
             name4:null,
             name5:null,
-
         }
     },
     methods: {
         createCard() {
             let card = {
                 name: this.name,
-                arrTask: [ { id: 1, title: this.name1, completed: false},
+                arrTask: [ {id: 1, title: this.name1, completed: false},
                            {id: 2, title: this.name2, completed: false},
                            {id: 3, title: this.name3, completed: false},
                            {id: 4, title: this.name4, completed: false},
@@ -149,6 +239,7 @@ Vue.component('create_card', {
             this.name4 = null,
             this.name5 = null
         },
+
     },
 
     props: {
@@ -164,6 +255,14 @@ Vue.component('create_card', {
 let app = new Vue({
     el: '#app',
     data: {
+
+    },
+    props: {
+        columnThird:{
+            type: Array,
+            required: false
+
+        }
 
     }
 })
